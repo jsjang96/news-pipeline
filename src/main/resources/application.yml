@@ -59,7 +59,7 @@ telegram:
   chat-id: ${TELEGRAM_CHAT_ID:}
   base-url: https://api.telegram.org
   max-per-run: 10               # 한 주기에 보낼 최대 건수(백로그 폭탄 방지)
-  interval-ms: 120000           # 2분 (전송 주기)
+  interval-ms: 1800000          # 30분 (전송 주기)
 
 logging:
   level:
