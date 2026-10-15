@@ -20,20 +20,34 @@ public class SummaryProcessor implements ItemProcessor<RawArticle, ProcessedArti
     private static final Logger log = LoggerFactory.getLogger(SummaryProcessor.class);
 
     private final ClaudeClient claudeClient;
+    private final SummaryCache cache;
     private final AnthropicProperties props;
 
-    public SummaryProcessor(ClaudeClient claudeClient, AnthropicProperties props) {
+    public SummaryProcessor(ClaudeClient claudeClient, SummaryCache cache, AnthropicProperties props) {
         this.claudeClient = claudeClient;
+        this.cache = cache;
         this.props = props;
     }
 
     @Override
     public ProcessedArticle process(RawArticle article) {
+        String title = article.getTitle();
+        String content = article.getContent();
         try {
-            Classification c = claudeClient.summarizeAndClassify(article.getTitle(), article.getContent());
+            // 1) Redis 캐시 확인 — 같은 본문을 이미 요약했으면 Claude 호출 스킵(비용 절감)
+            Classification c = cache.get(title, content).orElse(null);
+            boolean fromCache = (c != null);
+
+            // 2) 없으면 Claude 호출 후 캐시에 저장
+            if (c == null) {
+                c = claudeClient.summarizeAndClassify(title, content);
+                cache.put(title, content, c);
+            }
+
             ArticleSummary summary = ArticleSummary.of(article.getId(), c.category(), c.summary(), props.model());
             article.setStatus(ArticleStatus.DONE);
-            log.debug("요약 완료 id={} category={}", article.getId(), c.category());
+            log.debug("요약 완료 id={} category={} ({})",
+                    article.getId(), c.category(), fromCache ? "캐시" : "API");
             return new ProcessedArticle(article, summary);
         } catch (Exception e) {
             article.setStatus(ArticleStatus.FAILED);

@@ -1,4 +1,9 @@
 spring:
+  # 로컬 개발 편의: .env를 설정으로 읽어들인다(KEY=VALUE = properties 형식).
+  # optional: 이라 파일이 없어도 기동 실패하지 않음 → 운영에선 진짜 환경변수를 쓰면 됨.
+  config:
+    import: optional:file:.env[.properties]
+
   application:
     name: news-pipeline
 
@@ -42,9 +47,11 @@ news:
     source: GeekNews
     url: https://news.hada.io/rss/news
   collection:
-    interval-ms: 300000          # 5분 (수집 배치 주기)
+    interval-ms: 600000          # 10분 (수집 배치 주기)
   processing:
     interval-ms: 600000          # 10분 (요약·분류 배치 주기)
+  cache:
+    summary-ttl-hours: 168       # 7일 (같은 본문 재요약 방지, Redis)
 
 # LLM (Claude) — API 키는 환경변수로만! (코드/YAML 하드코딩 금지)
 anthropic:
@@ -59,7 +66,7 @@ telegram:
   chat-id: ${TELEGRAM_CHAT_ID:}
   base-url: https://api.telegram.org
   max-per-run: 10               # 한 주기에 보낼 최대 건수(백로그 폭탄 방지)
-  interval-ms: 1800000          # 30분 (전송 주기)
+  interval-ms: 180000          # 3분 (전송 주기)
 
 logging:
   level:
