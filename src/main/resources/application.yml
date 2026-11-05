@@ -10,7 +10,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/newsdb
     username: news
-    password: newspass
+    password: ${DB_PASSWORD:newspass}
     driver-class-name: org.postgresql.Driver
 
   jpa:
