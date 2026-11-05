@@ -47,9 +47,9 @@ news:
     source: GeekNews
     url: https://news.hada.io/rss/news
   collection:
-    interval-ms: 600000          # 10분 (수집 배치 주기)
+    interval-ms: 1800000         # 30분 (수집 배치 주기 — RSS가 최신 50건만 보관하므로 놓치지 않을 간격)
   processing:
-    interval-ms: 600000          # 10분 (요약·분류 배치 주기)
+    interval-ms: 1800000         # 30분 (요약·분류 배치 주기 — 호출 수는 기사 수로 결정되어 주기와 무관)
   cache:
     summary-ttl-hours: 168       # 7일 (같은 본문 재요약 방지, Redis)
 
@@ -65,8 +65,8 @@ telegram:
   bot-token: ${TELEGRAM_BOT_TOKEN:}
   chat-id: ${TELEGRAM_CHAT_ID:}
   base-url: https://api.telegram.org
-  max-per-run: 10               # 한 주기에 보낼 최대 건수(백로그 폭탄 방지)
-  interval-ms: 180000          # 3분 (전송 주기)
+  max-per-run: 50               # 한 다이제스트에 담을 최대 기사 수(안전장치)
+  cron: "0 0 8 * * *"           # 매일 오전 8시(Asia/Seoul) — 하루 1번 다이제스트 전송
 
 logging:
   level:
