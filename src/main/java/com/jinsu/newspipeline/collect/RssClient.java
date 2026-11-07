@@ -27,6 +27,7 @@ public class RssClient {
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
+            .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
     public List<FeedItem> fetch(String url, String source) {
@@ -41,11 +42,11 @@ public class RssClient {
             HttpResponse<InputStream> response =
                     httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
-            if (response.statusCode() != 200) {
-                throw new IllegalStateException("RSS fetch failed: HTTP " + response.statusCode() + " for " + url);
-            }
-
             try (InputStream body = response.body()) {
+                if (response.statusCode() != 200) {
+                    throw new IllegalStateException("RSS fetch failed: HTTP " + response.statusCode() + " for " + response.uri());
+                }
+
                 SyndFeed feed = new SyndFeedInput().build(new XmlReader(body));
                 List<FeedItem> items = new ArrayList<>();
                 for (SyndEntry entry : feed.getEntries()) {
