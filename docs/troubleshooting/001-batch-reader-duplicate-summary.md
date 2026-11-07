@@ -146,7 +146,7 @@ v1은 단일 인스턴스라 여기까지 가지 않았고, `PROCESSING` 선점�
 
 ---
 
-### 이력서/면접용 STAR 요약 (복붙해서 다듬어 쓰기)
+### STAR 요약
 
 - **Situation**: Spring Batch로 대량 기사를 LLM 요약·분류하는 배치를 구현.
 - **Task**: 처리 배치가 남은 건이 적은 구간에서 `duplicate key`로 실패하는 문제 해결.
